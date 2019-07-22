@@ -1,0 +1,14 @@
+{
+  "upload": "public/upload",
+  "mail": {
+    "subject": "Сообщение с сайта-портфолио",
+    "smtp": {
+      "service": "mail",
+      "host": "smtp.mail.ru",
+      "auth": {
+        "user": "molodoyrustik@mail.ru",
+        "pass": "molodoy"
+      }
+    }
+  }
+}
