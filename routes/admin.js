@@ -12,8 +12,21 @@ const Work = require('../models/Work');
 const SkillGroup = require('../models/SkillGroup');
 const Skill = require('../models/Skill');
 
+function generateId() {
+  return new mongoose.mongo.ObjectId();
+}
 
-router.get('/', async function (req, res) {
+function isLoggedIn(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res
+    .status(401)
+    .send("Авторизируйтесь");
+}
+
+router.get('/', isLoggedIn, async function (req, res) {
+  console.log('yes');
   let skillgroups = await SkillGroup.find();
   let skills = await Skill.find();
   let obj = {
@@ -41,16 +54,28 @@ router.post('/works', async function (req, res) {
         fs.unlink(path.join(config.upload, files.photo.name));
         fs.rename(files.photo.path, files.photo.name);
       }
-      
-      const work = new Work({
-        id: new mongoose.mongo.ObjectId(),
-        title: fields.title,
-        technologies: fields.technologies,
-        imgUrl: `/upload/${files.photo.name}`,
-        link: fields.link,
-      })
-      await work.save();
-      res.json({ flag: true, message: 'Проект успешно добавлен' });
+      try {
+        const work = new Work({
+          id: generateId(),
+          title: fields.title,
+          technologies: fields.technologies,
+          imgUrl: `/upload/${files.photo.name}`,
+          link: fields.link,
+        })
+        await work.save();
+        res.json({ flag: true, message: 'Проект успешно добавлен' });
+      } catch(e) {
+        //если есть ошибки, то получаем их список и так же передаем в шаблон
+        const error = Object
+        .keys(e.errors)
+        .map(key => e.errors[key].message)
+        .join(', ');
+
+        //обрабатываем шаблон и отправляем его в браузер
+        res.json({
+          flag: false, message: 'При добавление проекта произошла ошибка: ' + error
+        });
+      }
     });
   });
 });
@@ -61,8 +86,7 @@ router.post('/posts', async function (req, res) {
     if (!title || !date || !text) {
       return res.json({ flag: false, message: 'Заполните все поля' });
     }
-    const id = new mongoose.mongo.ObjectId();
-    const post = new Post({ id, title, date, text });
+    const post = new Post({ id: generateId(), title, date, text });
     await post.save();
     return res.json({ flag: true, message: 'Пост успешно добавлен' });
   } catch(err) {
@@ -76,7 +100,7 @@ router.post('/skillgroups', async function (req, res) {
     return res.json({ flag: false, message: 'Заполните все поля' });
   }
   const skillGroup = new SkillGroup({
-    id: new mongoose.mongo.ObjectId(),
+    id: generateId(),
     title,
   })
 
@@ -91,7 +115,7 @@ router.post('/skills', async function (req, res) {
     return res.json({ flag: false, message: 'Заполните все поля' });
   }
   const skill = new Skill({
-    id: new mongoose.mongo.ObjectId(),
+    id: generateId(),
     name,
     groupId,
     value,
@@ -109,7 +133,7 @@ router.put('/skills', async function (req, res) {
   }
 
   data.forEach(async (elem, index) => {
-    await Skill.updateOne({id: elem.id}, { value: elem.value });
+    await Skill.updateOne({id: elem.id}, { $set: {value: elem.value} });
   })
   
   return res.json({ flag: true, message: 'Скилл успешно добавлен' });

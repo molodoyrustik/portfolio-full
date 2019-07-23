@@ -12644,6 +12644,8 @@ exports["default"] = _default;
 },{"jquery":27}],35:[function(require,module,exports){
 "use strict";
 
+var _jquery = _interopRequireDefault(require("jquery"));
+
 var _tabs = _interopRequireDefault(require("./admin-modules/tabs"));
 
 var _addWork = _interopRequireDefault(require("./admin-modules/addWork"));
@@ -12658,19 +12660,21 @@ var _editSkills = _interopRequireDefault(require("./admin-modules/editSkills"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-_editSkills["default"].init();
+(0, _jquery["default"])(window).on('load', function () {
+  _editSkills["default"].init();
 
-_addSkill["default"].init();
+  _addSkill["default"].init();
 
-_addSkillGroup["default"].init();
+  _addSkillGroup["default"].init();
 
-_addWork["default"].init();
+  _addWork["default"].init();
 
-_addPost["default"].init();
+  _addPost["default"].init();
 
-_tabs["default"].init();
+  _tabs["default"].init();
+});
 
-},{"./admin-modules/addPost":29,"./admin-modules/addSkill":30,"./admin-modules/addSkillGroup":31,"./admin-modules/addWork":32,"./admin-modules/editSkills":33,"./admin-modules/tabs":34}],36:[function(require,module,exports){
+},{"./admin-modules/addPost":29,"./admin-modules/addSkill":30,"./admin-modules/addSkillGroup":31,"./admin-modules/addWork":32,"./admin-modules/editSkills":33,"./admin-modules/tabs":34,"jquery":27}],36:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

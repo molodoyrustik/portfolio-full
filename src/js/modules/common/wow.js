@@ -41,6 +41,10 @@ var animateCss = (function() {
 			$(this).addClass('toTop');
 		},
 
+		toCircle: function() {
+			$(this).addClass('toCircle');
+		},
+
 		// custom animation
 		width: function() {
 			var $this = $(this);
@@ -79,6 +83,17 @@ var animateCss = (function() {
 
 			$(window).on('load',function() {
 				var scrollTop = $(this.window).scrollTop();
+
+				$('.wow').each(function() {
+					var $this = $(this);
+					if (checkDistance(scrollTop, $this)) {
+						var animationType = $this.data('animate');
+						if (typeof $this.data('animated') == 'undefined') {
+							$this.data('animated', true);
+							animationsActions[animationType].call($this);
+						}
+					}
+				})
 
 				$('.wow').each(function() {
 					var $this = $(this);

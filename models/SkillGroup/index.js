@@ -5,12 +5,12 @@ const mongoose = require('mongoose');
 const schema = new mongoose.Schema({
   id: {
     type: String,
-    required: true,
     trim: true,
+    required: [true, 'Укажите id группы скиллов'],
   },
   title: {
     type: String,
-    required: true,
+    required: [true, 'Укажите title группы скиллов'],
     trim: true,
   }
 })

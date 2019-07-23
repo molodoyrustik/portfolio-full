@@ -9,6 +9,9 @@ const bodyParser = require('body-parser');
 const app = express();
 const server = http.createServer(app);
 const mongoose = require('mongoose');
+const session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
+const passport = require('passport');
 
 const jsonfile = require('jsonfile');
 const fileVersionControl = 'version.json';
@@ -18,10 +21,8 @@ const config = require('./config');
 // проектов
 const uploadDir = path.join(__dirname, config.upload);
 
+//mongoose.connect('mongodb://root:12345@ds137191.mlab.com:37191/testing');
 mongoose.connect('mongodb://localhost:27017/test', {useNewUrlParser: true})
-.catch((err) => {
-  console.log(err);
-})
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -31,6 +32,25 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+app.use(session({
+  secret: 'secret',
+  key: 'keys',
+  cookie: {
+    path: '/',
+    httpOnly: true,
+    maxAge: null
+  },
+  saveUninitialized: false,
+  resave: false,
+  store: new MongoStore({mongooseConnection: mongoose.connection})
+}));
+
+require('./config/config-passport');
+app.use(passport.initialize());
+app.use(passport.session());
+
+
 app.use(express.static(path.join(__dirname, currentStatic)));
 
 app.use('/', require('./routes/index'));

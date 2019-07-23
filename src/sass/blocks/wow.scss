@@ -23,6 +23,11 @@
 	animation-fill-mode: forwards;
 }
 
+.toCircle {
+  opacity: 1;
+  stroke-dasharray: 282.6 282.6;
+}
+
 @keyframes bounceInUp {
   from,
   60%,

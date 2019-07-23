@@ -38,3 +38,5 @@ npm-debug.log
 package-lock.json
 yarn.lock
 build/
+
+config.json

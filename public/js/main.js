@@ -12702,6 +12702,9 @@ var animateCss = function () {
     toTop: function toTop() {
       $(this).addClass('toTop');
     },
+    toCircle: function toCircle() {
+      $(this).addClass('toCircle');
+    },
     // custom animation
     width: function width() {
       var $this = $(this);
@@ -12741,6 +12744,18 @@ var animateCss = function () {
       });
       $(window).on('load', function () {
         var scrollTop = $(this.window).scrollTop();
+        $('.wow').each(function () {
+          var $this = $(this);
+
+          if (checkDistance(scrollTop, $this)) {
+            var animationType = $this.data('animate');
+
+            if (typeof $this.data('animated') == 'undefined') {
+              $this.data('animated', true);
+              animationsActions[animationType].call($this);
+            }
+          }
+        });
         $('.wow').each(function () {
           var $this = $(this);
 
@@ -13691,102 +13706,62 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = void 0;
 
-var _helpers = require("../utils/helpers");
+var _axios = _interopRequireDefault(require("axios"));
 
 var _Popup = _interopRequireDefault(require("../utils/Popup"));
 
-var _jquery = _interopRequireDefault(require("jquery"));
-
-var _axios = _interopRequireDefault(require("axios"));
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+var _default = {
+  init: function init() {
+    _Popup["default"].init();
 
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+    var signupForm = document.querySelector('#signin-form');
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+    if (signupForm) {
+      var handleSubmit = function handleSubmit(e) {
+        e.preventDefault();
+        var _e$target = e.target,
+            email = _e$target.email,
+            password = _e$target.password;
 
-_Popup["default"].init();
+        if (!email.value || !password.value) {
+          _Popup["default"].open('Заполните все поля');
 
-var urlApi = 'http://localhost:3001/api/v1';
+          return null;
+        }
 
-var Form =
-/*#__PURE__*/
-function () {
-  function Form(form, host) {
-    _classCallCheck(this, Form);
+        var data = {
+          email: email.value,
+          password: password.value
+        };
 
-    this.form = form;
-    this.host = host;
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.validateForm = this.validateForm.bind(this);
-  }
+        _axios["default"].post('/signin', data).then(function (res) {
+          var _res$data = res.data,
+              flag = _res$data.flag,
+              message = _res$data.message;
 
-  _createClass(Form, [{
-    key: "init",
-    value: function init() {
-      this.form.on('submit', this.handleSubmit.bind(this));
-    }
-  }, {
-    key: "handleSubmit",
-    value: function handleSubmit(e) {
-      e.preventDefault();
-      console.log(this.validateForm());
-
-      if (this.validateForm()) {
-        this.postFormData().then(function (response) {
-          if (response.status === 200) {
-            (0, _helpers.save)(response.data[0].token);
-            window.location.href = "admin.html";
+          if (!flag) {
+            _Popup["default"].open(message);
+          } else {
+            _Popup["default"].open(message);
           }
+
+          signupForm.reset();
         })["catch"](function (err) {
-          _Popup["default"].open('Неверный логин или пароль');
+          console.log(err);
+
+          _Popup["default"].open('Произошла ошибка');
         });
-      } else {
-        return null;
-      }
+      };
+
+      signupForm.addEventListener('submit', handleSubmit);
     }
-  }, {
-    key: "postFormData",
-    value: function postFormData() {
-      var reqFields = this.form.find('[name]');
-      var dataObject = {};
-      reqFields.each(function () {
-        var $this = (0, _jquery["default"])(this);
-        var value = $this.val();
-        var name = $this.attr('name');
-        dataObject[name] = value;
-      });
-      return _axios["default"].post(this.host, dataObject);
-    }
-  }, {
-    key: "validateForm",
-    value: function validateForm() {
-      var email = this.form.find("[name='email']")[0];
-      var password = this.form.find("[name='password']")[0];
-      var isValid = false;
-
-      if (email.value && password.value) {
-        isValid = true;
-      } else {
-        isValid = false;
-
-        _Popup["default"].open('Заполните все данные!');
-      }
-
-      return isValid;
-    }
-  }]);
-
-  return Form;
-}();
-
-var authForm = new Form((0, _jquery["default"])('#form'), "".concat(urlApi, "/auth/signin"));
-var _default = authForm;
+  }
+};
 exports["default"] = _default;
 
-},{"../utils/Popup":51,"../utils/helpers":52,"axios":1,"jquery":27}],50:[function(require,module,exports){
+},{"../utils/Popup":51,"axios":1}],50:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13894,26 +13869,6 @@ var Popups = function () {
 var _default = Popups;
 exports["default"] = _default;
 
-},{"jquery":27}],52:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.load = load;
-exports.save = save;
-
-function save(data) {
-  var string = JSON.stringify(data);
-  localStorage.setItem('token', string);
-}
-
-function load() {
-  var string = localStorage.getItem('token');
-  var data = JSON.parse(string);
-  return data;
-}
-
-},{}]},{},[29])
+},{"jquery":27}]},{},[29])
 
 //# sourceMappingURL=maps/main.js.map
